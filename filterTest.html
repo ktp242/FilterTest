@@ -18,6 +18,7 @@ Trying a new source code. 20131101
 <head>
 
  <script type="text/javascript">
+   var hasVideo=false;
    var myVideo=null;
    var canvasWidth=320;
    var canvasHeight=320;
@@ -25,13 +26,10 @@ Trying a new source code. 20131101
    var context;
    var mySphere;
    var mySphereCtx=null;
-   var hasVideo=false;
+   var threshold = 2;
    var map = [];
 
-
-
    function init(){
-
 
      // set up the local video object
 
@@ -79,6 +77,7 @@ Trying a new source code. 20131101
      mySphere = document.getElementById("mySphere");
      mySphereCtx = mySphere.getContext("2d");
 
+     // the data from context and mySphereCtx, which working with exec() and translate()
      var videoBit = mySphereCtx.getImageData(40, 0, 240,240);
      var texture = context.getImageData(40, 0, 240,240);
 
@@ -88,7 +87,7 @@ Trying a new source code. 20131101
       var x = px-videoBit.width/2;
       var y = py-videoBit.height/2;
       var r = Math.sqrt(x*x+y*y);
-      var maxr = videoBit.width/2;
+      var maxr = videoBit.width/threshold;
       if (r>maxr) return {
         'x':px,
         'y':py
@@ -104,7 +103,7 @@ Trying a new source code. 20131101
     }
 
     
-    // put the data from manipulor
+    // put the adjusted data into the contour
     var exec = function(videoBit, texture) {
       var height = videoBit.height;
       var width = videoBit.width;
@@ -128,7 +127,7 @@ Trying a new source code. 20131101
       }
     }
 
-    // grab pixel data after manipulator    
+    // grab pixel data after manipulator adjust it and map it  
     var setTranslate = function() {
       for (var y=0; y<videoBit.height; y++) {
         for (var x=0; x<videoBit.width; x++) {
@@ -139,22 +138,14 @@ Trying a new source code. 20131101
       }
     }
 
-
     setTranslate();
-
-
-
-      exec(videoBit,texture);
-      mySphereCtx.putImageData(videoBit, 0 ,0);
-      console.log("drawScreen works");
-
-
+    exec(videoBit,texture);
+    mySphereCtx.putImageData(videoBit, 0 ,0);
+    console.log("drawScreen works");
 
     }
 
-
     setInterval(drawScreen, 33);
-
 
   }
 
