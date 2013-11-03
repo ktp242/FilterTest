@@ -9,6 +9,8 @@ Trying a new source code. 20131101
 20131102
 3) solved the problem!!! it turned out that I missed a } at the last line of setTranslate()! Now it works.
 
+4) put the mySphere in the right position
+
 
 -->
 
@@ -18,9 +20,7 @@ Trying a new source code. 20131101
  <script type="text/javascript">
    var myVideo=null;
    var canvasWidth=320;
-   var canvasHeight=240;
-   var sphereW=200;
-   var sphereH=200;
+   var canvasHeight=320;
    var myCanvas;
    var context;
    var mySphere;
@@ -45,12 +45,12 @@ Trying a new source code. 20131101
        navigator.getUserMedia({video: true, audio: true}, 
          function(stream) {
           myStream = stream;
-				                    // where the stream to be shown in the HTML
+                                                    // where the stream to be shown in the HTML
                             myVideo = document.getElementById('myVideo');
                             hasVideo=true;
-				                    // fill the stream into video tag
-				                    myVideo.src = window.URL.createObjectURL(stream) || stream;
-				                    myVideo.play();			                                            }, 
+                                                    // fill the stream into video tag
+                                                    myVideo.src = window.URL.createObjectURL(stream) || stream;
+                                                    myVideo.play();                                                                    }, 
                            function(err) {
                             console.log('Failed to get local stream' ,err);
                           }
@@ -69,22 +69,18 @@ Trying a new source code. 20131101
 
            //Background
            context.fillStyle = '#ffffaa';
-           context.fillRect(0, 0, 310, 230);
 
-           //Box
-           context.strokeStyle = '#000000';
-           context.strokeRect(5,  5, canvasWidth, canvasHeight);
 
      // play video in canvas at position x=0, y=0
-     context.drawImage(myVideo , 0, 0, 320,240);
+     context.drawImage(myVideo , 0, 0, 640, 640, 0, 0, 320, 320);
 
 
      // the sphere canvas
      mySphere = document.getElementById("mySphere");
      mySphereCtx = mySphere.getContext("2d");
 
-     var videoBit = mySphereCtx.getImageData(0,0, 200,200);
-     var texture = context.getImageData(0,0, 200,200);
+     var videoBit = mySphereCtx.getImageData(40, 0, 240,240);
+     var texture = context.getImageData(40, 0, 240,240);
 
 
      // the spherize effect manipulator
@@ -148,12 +144,6 @@ Trying a new source code. 20131101
 
 
 
-      // shifting of the second object
-      mySphere.style.left = 400+ 'px';
-      mySphere.style.top = 400 + 'px';
-
-
-
       exec(videoBit,texture);
       mySphereCtx.putImageData(videoBit, 0 ,0);
       console.log("drawScreen works");
@@ -175,6 +165,6 @@ Trying a new source code. 20131101
 <body onload="init()">
   <canvas id="myCanvas" width="320" height="240"></canvas>
   <video id="myVideo" width="320" height="240" style="border:1px solid #000000;"> </video>
-  <canvas id="mySphere" width= "200" height= "200"></canvas>
+  <canvas id="mySphere" width= "320" height= "240" style = "position: absolute; left:50; top: 10"></canvas>
 </body>
 </html>
