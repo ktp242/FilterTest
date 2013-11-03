@@ -1,0 +1,180 @@
+<!-- 
+
+this is a video filter test
+Trying a new source code. 20131101
+
+1) applying the source
+2) completed adjusting the code, but there's nothing has changed.
+
+20131102
+3) solved the problem!!! it turned out that I missed a } at the last line of setTranslate()! Now it works.
+
+
+-->
+
+<html>
+<head>
+
+ <script type="text/javascript">
+   var myVideo=null;
+   var canvasWidth=320;
+   var canvasHeight=240;
+   var sphereW=200;
+   var sphereH=200;
+   var myCanvas;
+   var context;
+   var mySphere;
+   var mySphereCtx=null;
+   var hasVideo=false;
+   var map = [];
+
+
+
+   function init(){
+
+
+     // set up the local video object
+
+     // way to get the video depends on different browsers 
+     window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+     // if user say yes to the permission to open the camera
+     if (navigator.getUserMedia) 
+     {
+       navigator.getUserMedia({video: true, audio: true}, 
+         function(stream) {
+          myStream = stream;
+				                    // where the stream to be shown in the HTML
+                            myVideo = document.getElementById('myVideo');
+                            hasVideo=true;
+				                    // fill the stream into video tag
+				                    myVideo.src = window.URL.createObjectURL(stream) || stream;
+				                    myVideo.play();			                                            }, 
+                           function(err) {
+                            console.log('Failed to get local stream' ,err);
+                          }
+                          );
+     }
+     
+     
+     function drawScreen(){
+
+      if(!hasVideo)
+        return;
+
+      // section of my canvas and put video into it
+      myCanvas = document.getElementById("myCanvas");
+      context = myCanvas.getContext("2d");
+
+           //Background
+           context.fillStyle = '#ffffaa';
+           context.fillRect(0, 0, 310, 230);
+
+           //Box
+           context.strokeStyle = '#000000';
+           context.strokeRect(5,  5, canvasWidth, canvasHeight);
+
+     // play video in canvas at position x=0, y=0
+     context.drawImage(myVideo , 0, 0, 320,240);
+
+
+     // the sphere canvas
+     mySphere = document.getElementById("mySphere");
+     mySphereCtx = mySphere.getContext("2d");
+
+     var videoBit = mySphereCtx.getImageData(0,0, 200,200);
+     var texture = context.getImageData(0,0, 200,200);
+
+
+     // the spherize effect manipulator
+     var spherize = function(px,py) {
+      var x = px-videoBit.width/2;
+      var y = py-videoBit.height/2;
+      var r = Math.sqrt(x*x+y*y);
+      var maxr = videoBit.width/2;
+      if (r>maxr) return {
+        'x':px,
+        'y':py
+      }
+      var a = Math.atan2(y,x);
+      var k = (r/maxr)*(r/maxr)*0.5+0.5;
+      var dx = Math.cos(a)*r*k;
+      var dy = Math.sin(a)*r*k;
+      return {
+        'x': dx+videoBit.width/2,
+        'y': dy+videoBit.height/2
+      }
+    }
+
+    
+    // put the data from manipulor
+    var exec = function(videoBit, texture) {
+      var height = videoBit.height;
+      var width = videoBit.width;
+      var colorat = function(x,y,channel) {
+        return texture.data[(x+y*height)*4+channel];
+      }
+      for (var j=0; j<height; j++) {
+        for (var i=0; i<width; i++) {
+          var u = map[(i+j*height)*2];
+          var v = map[(i+j*height)*2+1];
+          var x = Math.floor(u);
+          var y = Math.floor(v);
+          var kx = u-x;
+          var ky = v-y;
+          for (var c=0; c<4; c++) {
+            videoBit.data[(i+j*height)*4+c] =
+            (colorat(x,y  ,c)*(1-kx) + colorat(x+1,y  ,c)*kx) * (1-ky) +
+            (colorat(x,y+1,c)*(1-kx) + colorat(x+1,y+1,c)*kx) * (ky);
+          }
+        }
+      }
+    }
+
+    // grab pixel data after manipulator    
+    var setTranslate = function() {
+      for (var y=0; y<videoBit.height; y++) {
+        for (var x=0; x<videoBit.width; x++) {
+          var t = spherize(x,y);
+          map[(x+y*videoBit.height)*2+0] = Math.max(Math.min(t.x,videoBit.height-1),0);
+          map[(x+y*videoBit.height)*2+1] = Math.max(Math.min(t.y,videoBit.height-1),0);
+        }
+      }
+    }
+
+
+    setTranslate();
+
+
+
+      // shifting of the second object
+      mySphere.style.left = 400+ 'px';
+      mySphere.style.top = 400 + 'px';
+
+
+
+      exec(videoBit,texture);
+      mySphereCtx.putImageData(videoBit, 0 ,0);
+      console.log("drawScreen works");
+
+
+
+    }
+
+
+    setInterval(drawScreen, 33);
+
+
+  }
+
+</script>
+
+</head>
+
+<body onload="init()">
+  <canvas id="myCanvas" width="320" height="240"></canvas>
+  <video id="myVideo" width="320" height="240" style="border:1px solid #000000;"> </video>
+  <canvas id="mySphere" width= "200" height= "200"></canvas>
+</body>
+</html>
