@@ -17,6 +17,32 @@ function requestHandler(req, res) {
 			res.writeHead(200);
 			res.end(data);
 			console.log("server connected")
-  		}
-  	);
+		}
+		);
 }
+
+// WebSocket Portion
+// WebSockets work with the HTTP server
+var io = require('socket.io').listen(httpServer);
+
+io.sockets.on('connection',
+	// We are given a websocket object in our function
+	function (socket) {
+
+		var myTimerValue = 0;
+
+		function myTimer(){
+			setInterval(myTimerValue ++, 1000);
+			console.log(myTimerValue);
+			io.sockets.emit('myTimer', myTimerValue);
+		}
+
+		myTimer();
+
+		 // Once the client has left
+		 socket.on ('disconnect', function() {
+		 	console.log("One client has left");
+		 });
+
+		}
+		);

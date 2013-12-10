@@ -31,7 +31,7 @@ Trying a new source code. 20131101
    var mySphereCtx=null;
    var threshold = 2;
    var map = [];
-   var changeNumber=0.5;
+   var changeNumber=0;
 
    function init(){
 
@@ -153,17 +153,31 @@ Trying a new source code. 20131101
 
     function doKeyDown(e){
      if (e.keyCode == 87){
-      changeNumber = changeNumber + 0.01;
+      changeNumber = changeNumber + 0.02;
       console.log(changeNumber);     
     }else{
        if (e.keyCode == 83){
-      changeNumber = changeNumber - 0.01;
+      changeNumber = changeNumber - 0.02;
       console.log(changeNumber);     
     }
     }
    }
 
    window.addEventListener( "keydown", doKeyDown, false );
+
+
+    function myTimer(){
+      setInterval(function (){
+        if (changeNumber>0){
+        changeNumber = changeNumber - 0.015;
+      }
+           console.log(changeNumber);
+         },
+         500);
+ 
+    }
+
+    myTimer();
 
   }
 
