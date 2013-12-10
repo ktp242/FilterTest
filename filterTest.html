@@ -11,6 +11,9 @@ Trying a new source code. 20131101
 
 4) put the mySphere in the right position
 
+20131209
+5) went back to this code, figuring out where to put variables to make fish eye changing.
+
 
 -->
 
@@ -28,6 +31,7 @@ Trying a new source code. 20131101
    var mySphereCtx=null;
    var threshold = 2;
    var map = [];
+   var changeNumber=0.5;
 
    function init(){
 
@@ -93,7 +97,7 @@ Trying a new source code. 20131101
         'y':py
       }
       var a = Math.atan2(y,x);
-      var k = (r/maxr)*(r/maxr)*0.5+0.5;
+      var k = (r/maxr)*(r/maxr)*changeNumber+(1-changeNumber);
       var dx = Math.cos(a)*r*k;
       var dy = Math.sin(a)*r*k;
       return {
@@ -146,6 +150,20 @@ Trying a new source code. 20131101
     }
 
     setInterval(drawScreen, 33);
+
+    function doKeyDown(e){
+     if (e.keyCode == 87){
+      changeNumber = changeNumber + 0.01;
+      console.log(changeNumber);     
+    }else{
+       if (e.keyCode == 83){
+      changeNumber = changeNumber - 0.01;
+      console.log(changeNumber);     
+    }
+    }
+   }
+
+   window.addEventListener( "keydown", doKeyDown, false );
 
   }
 
